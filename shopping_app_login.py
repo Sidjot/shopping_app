@@ -2,6 +2,8 @@ import uuid
 session_id=0
 user_type = None
 granted = False
+cart=[]
+newlist2=[]
 def grant():
     global granted
     granted = True
@@ -20,6 +22,7 @@ def login (name,password):
                 user_type=item[2]
                 session_id= uuid.uuid4()
                 success=True
+                create_items()
                 break
         if success:
             print("Login Successful!!!")
@@ -45,9 +48,9 @@ def access(option):
         password = input("Enter your password: ")
         admin_flag = input("Is this admin registration?(Yes/No)")
         if admin_flag.lower()=="yes":
-            register(name,password,1)
+            register(name,password,1)  #1 for admin
         else:
-            register(name,password,0)
+            register(name,password,0)  #0 for customer
             
         
         print("Registration succesfull!!")
@@ -88,11 +91,10 @@ def show_options():
             if option == str(1):
                 show_all_items()
             elif option == str(2):
-                pass
-                #Add_item_cart()
+                add_item_cart()
             elif option == str(3):
                 pass
-                # Remove_item_cart()
+                remove_item_cart()
             elif option == str(4):
                 pass
                 #Bill_checkout()
@@ -107,12 +109,15 @@ def logout():
     global session_id
     global user_type
     global granted
+    global cart
     session_id=0
     user_type = None
     granted = False
+    cart=[]
     print("You have been successfully logged out")
         
-def show_all_items():
+def create_items():
+    global newlist2
     with open("MyFile.txt","r") as MyFile:
         f=MyFile.readlines()
         newlist=[]
@@ -122,16 +127,67 @@ def show_all_items():
                 pass
             else:
                 newlist.append(line[:-1])
-
-                
-       # for line in newlist:
-           # newlist2=[str(catg).split(",") for catg in newlist]
         newlist2=[str(catg).split(",") for catg in newlist]
         
+def show_all_items():        
         for item in newlist2:
-            print(item,"\n")
-        
-#################################################################################
+            print(item[2],"Available Qty: ",item[5]," ", item[3]," ",item[4],"\n")
+ 
+def add_item_cart():
+    while True:
+        option = input("Please select item(Press 'q' to quit)")
+        flag=0
+        for item in newlist2:
+            if option.lower()== item[2].lower():
+                flag=1
+                quantity = int(input ("Please enter qty of items: "))
+                add_to_cart(option,quantity)
+                break
+        if flag==0:
+            print("Please select valid item")
+        if option.lower() == "q":
+            break
+
+def add_to_cart(option,quantity):
+    global cart
+    flag=0
+    for i in cart:
+        if i[0].lower() == option.lower():
+            for item in newlist2:
+                if item[2].lower()==option.lower():
+                    if int(item[5]) > (int(i[1]) + int(quantity)):
+                        i[1] = int(i[1]) + int(quantity)
+                        flag=1
+                        return cart
+                    else:
+                        print("Quantity exceeds available stock")
+                        flag = 1
+                        break             
+            
+    if flag ==0:
+        cart.append([option,quantity])
+    print(cart)
+
+def remove_item_cart():
+    flag=0
+    global cart
+    while True:
+        for i in cart:
+            print(i[0], i[1])
+        option = input("Please slect item you want to remove(Press 'q' to quit)")
+        if option.lower() == "q":
+            break
+        for i in cart:
+            if option.lower() == i[0].lower():
+                flag = 1
+                qty = input("How much quantity you want to remove")
+                if int(qty)<0 or int(qty) > int(i[1]):
+                    print("Please enter valid quantity")
+                else:
+                    i[1] = int(i[1])-int(qty)
+        if flag ==0:
+            print("Please select valid item")
+#############################################################################
 begin()
 access(option)
 if granted:
