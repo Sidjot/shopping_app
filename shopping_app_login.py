@@ -4,6 +4,7 @@ user_type = None
 granted = False
 cart=[]
 newlist2=[]
+checkout=[]
 def grant():
     global granted
     granted = True
@@ -196,9 +197,23 @@ def get_sum(numbers,n=3):
         return 0
     return numbers[n-1]+get_sum(numbers[n:])
 
+def payment_method():
+    global checkout
+    s=get_sum(checkout)
+    while s!=0:
+        pay=input("Please select payment method:\n 1. Credit Card \n 2. UPI \n 3. Debit Card (1/2/3 - q to quit) ")
+        print(type(pay))
+        if pay=="1" or pay=="2" or pay=="3":
+            print("Your bill total of Rs ",s,"has been booked. Thank you for shopping at JeremyJohn!")
+            s=0
+            break
+        elif pay.lower() == "q" and s!=0:
+            print("Please complete your payment")
+    print("We look forward to see you again soon!")
+    
 def checkOut():
     #print (newlist2)
-    checkout =[]
+    global checkout
     for item in cart:
         print (item)
         for art in newlist2:
@@ -210,6 +225,7 @@ def checkOut():
                 checkout.append(item[1])
                 checkout.append(int(item[1])*int(pr[0][1]))
     print(checkout,"\n", "Your total is Rs.: ", get_sum(checkout))
+    payment_method()
        
         
 #############################################################################
