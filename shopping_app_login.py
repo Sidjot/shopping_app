@@ -93,11 +93,10 @@ def show_options():
             elif option == str(2):
                 add_item_cart()
             elif option == str(3):
-                pass
                 remove_item_cart()
             elif option == str(4):
-                pass
-                #Bill_checkout()
+                checkOut()
+                
             elif option == str(5):
                 logout()
                 break
@@ -134,6 +133,8 @@ def show_all_items():
             print(item[2],"Available Qty: ",item[5]," ", item[3]," ",item[4],"\n")
  
 def add_item_cart():
+    for item in newlist2:
+            print(item[2],"Available Qty: ",item[5]," ", item[3]," ",item[4],"\n")
     while True:
         option = input("Please select item(Press 'q' to quit)")
         flag=0
@@ -147,6 +148,8 @@ def add_item_cart():
             print("Please select valid item")
         if option.lower() == "q":
             break
+            
+    print("Items in cart: ",cart)
 
 def add_to_cart(option,quantity):
     global cart
@@ -166,7 +169,7 @@ def add_to_cart(option,quantity):
             
     if flag ==0:
         cart.append([option,quantity])
-    print(cart)
+    print("Items in cart: ",cart)
 
 def remove_item_cart():
     flag=0
@@ -187,6 +190,28 @@ def remove_item_cart():
                     i[1] = int(i[1])-int(qty)
         if flag ==0:
             print("Please select valid item")
+    print(cart)
+def get_sum(numbers,n=3):
+    if len(numbers)<n:
+        return 0
+    return numbers[n-1]+get_sum(numbers[n:])
+
+def checkOut():
+    #print (newlist2)
+    checkout =[]
+    for item in cart:
+        print (item)
+        for art in newlist2:
+            if item[0].lower()==art[2].lower():
+                pr=[]
+                pr.append(art[4].split("."))
+                print (pr)
+                checkout.append(item[0])
+                checkout.append(item[1])
+                checkout.append(int(item[1])*int(pr[0][1]))
+    print(checkout,"\n", "Your total is Rs.: ", get_sum(checkout))
+       
+        
 #############################################################################
 begin()
 access(option)
