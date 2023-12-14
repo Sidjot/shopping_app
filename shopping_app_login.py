@@ -40,7 +40,7 @@ def login (name,password):
             grant()
         else:
             print("Wrong username or password")
-            access(option)       
+            access(option)
         
 def register(name, password,flag):
     with open("Register.txt","a")as Register:
@@ -388,9 +388,16 @@ def payment_method():
         elif pay.lower() == "q" and s!=0:
             print("Please complete your payment")
     print("We look forward to see you again soon!")
-    
+def reduce_from_stock():
+    global newlist2
+    for i in cart:
+        for j in range(len(newlist2)-1):
+            if i[0].lower() == newlist2[j][2].lower():
+                newlist2[j][5] = newlist2[j][5] - i[1]
+                break
 def checkOut():
     #print (newlist2)
+    reduce_from_stock()
     global checkout
     for item in cart:
         print (item)
@@ -412,5 +419,3 @@ access(option)
 if granted:
     print("Welcome : "+name)
     show_options()
-
-
