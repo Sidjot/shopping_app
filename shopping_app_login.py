@@ -1,3 +1,4 @@
+from operator import itemgetter
 import uuid
 session_id=0
 user_type = None
@@ -5,6 +6,15 @@ granted = False
 cart=[]
 newlist2=[]
 checkout=[]
+category=[]
+title=[]
+product_list=[]
+no_articles=[]
+uom=[]
+price=[]
+stock=[]
+newlist=[]
+
 def grant():
     global granted
     granted = True
@@ -69,15 +79,15 @@ def show_options():
             option=input("Please select option\n 1. Add/Remove Category \n 2. Add/Modify/Remove item in category \n 3. Display all items\n 4. Logout:(1/2/3/4) ")
             if option==str(1):
                 catg_option=input("Please select option \n 1. Add Category \n 2. Remove Category: (1/2)")
-                if catg_option==str(1):
-                    pass
-                    #add_category()
+                category_in(catg_option)
+                '''if catg_option==str(1): 
+                    category_in(catg_option)
                 elif catg_option==str(2):
                     pass
-                    #remove_category()
+                    #remove_category()'''
             elif option==str(2):
                 pass
-                #add_modify_item
+                add_modify_item()
             elif option== str(3):
                 show_all_items()
             elif option==str(4):
@@ -104,7 +114,175 @@ def show_options():
             else:
                 print("Please select input from list","\n")
                 show_options()
+                
+def add_modify_item():
+    global newlist2
+    while True:
+        option=input("Please enter category number you want to modify(press q to quit)")
+        cat_name=""
+        flag = 0
+        if option.lower() == "q":
+            break
+        for i in newlist2:
+            print(i)
+            if option == i[0]:
+                cat_name = i[1]
+                flag = 1
+            break
+        if flag == 0:
+            print("Please enter proper category number")
+        else:
+            operation=input("1. Add item\n2. Modify quantity, price of item\n3. remove item(press q to quit)")
+            if operation.lower() == "q":
+                break
+            elif operation == "1":
+                nam = input("Please state the products' names: ")
+                um= input("Please state the unit of measurement: ")
+                rs = input("Please state the price of the product: ")
+                qty = input("Please input the qty in stock: ")
+                newlist2.append([option,cat_name,nam,um,"Rs."+rs,qty])
+                write_to_file(newlist2)
+            elif operation == "2":
+                while True:
+                    cat_name = input("Please enter product name(press q to quit)")
+                    if cat_name.lower() == "q":
+                        break
+                    flag =0;
+                    temp_item=[]
+                    for i in range(len(newlist2)):
+                        if newlist2[i][2].lower() == cat_name.lower():
+                            flag = 1
+                            index = i
+                            break
+                    if flag==0:
+                        print("Please enter proper product name")
+                    else:
+                        option1=input("1. Modify Quantity\n2. Modify Price(press q to quit)")
+                        if option1.lower() == "q":
+                            break
+                        elif option1 == "1":
+                            while True:
+                                new_qty=int(input("Please enter new quantity"))
+                                if new_qty > 0:
+                                    newlist2[index][5] = new_qty
+                                    write_to_file(newlist2)
+                                    print("Quantity updated successfully!")
+                                    break
+                                else:
+                                    print("Please enter valid quantity")
+                        elif option1 == "2":
+                            while True:
+                                new_price=int(input("Please enter new price"))
+                                if new_price > 0:
+                                    newlist2[index][4] = "Rs."+str(new_price)
+                                    write_to_file(newlist2)
+                                    print("Price updated successfully!")
+                                    break
+                                else:
+                                    print("Please enter valid price")
+                break
+            elif operation == "3":
+                while True:
+                    prod_name = input("Please enter product name you want to remove(press q to quit)")
+                    if prod_name.lower() == "q":
+                        break
+                    else:
+                        temp_list=[]
+                        flag =0
+                        for i in newlist2:
+                            if i[2].lower() == prod_name.lower():
+                                flag = 1
+                            else:
+                                temp_list.append(i)
+                                
+                            
+                        if flag == 0:
+                            print("Please enter valid product")
+                        else:
+                            write_to_file(temp_list)
+                            print("Product removed successfully!")
+                            newlist2 = temp_list
+                            break
+                            
+                        
+                
+                
+def category_in(catg_option):
+    while catg_option==str(1):
+        cat_no=input("Please state the category numbers you would like (q to quit):")
+        if cat_no!="q":
+            category.append(cat_no)
+            tit = input("Please input title of the category: ")
+            title.append(tit)
+            it_no = input("Please state no. of articles in this category: ")
+            no_articles.append(int(it_no))
+            for i in range (int(it_no)):
+                nam = input("Please state the products' names: ")
+                product_list.append(nam)
+                um= input("Please state the unit of measurement: ")
+                uom.append(um)
+                rs = input("Please state the price of the product: ")
+                price.append(rs)
+                qty = input("Please input the qty in stock: ")
+                stock.append(qty)
+                
+                
             
+        else:
+            if len(title)>0:
+                sum_no=[sum(no_articles[:i+1]) for i in range(len(no_articles))]
+                print("The categories introduced are: ")
+                print(no_articles)
+                print(product_list)
+                print(sum_no)
+                with open("NewFile.txt","w")as NewFile:
+                    for i in range (len(category)):
+                        if i-1>=0: 
+                            get=itemgetter(slice(sum_no[i-1],sum_no[i]))
+                            p=get(product_list)
+                            z=get(uom)
+                            q=get(price)
+                            r=get(stock)
+                            for j in range(len(p)):
+                                record=str(category[i])+","+str(title[i])+","+str(p[j])+","+str(z[j])+","+"Rs."+str(q[j])+","+str(r[j])+"\n"
+                                NewFile.write(record)
+                        else:
+                            get = itemgetter(slice(0,sum_no[i]))
+                            p=get(product_list)
+                            z=get(uom)
+                            q=get(price)
+                            r=get(stock)
+                            for j in range(len(p)):
+                                record=str(category[i])+","+str(title[i])+","+str(p[j])+","+str(z[j])+","+"Rs."+str(q[j])+","+str(r[j]+"\n")
+                                NewFile.write(record)
+            break
+    
+            
+    while catg_option==str(2):
+        cat_no=input("Please state the category you would like to remove: ")
+        filtered_items=[]
+        create_items()
+        for item in newlist2:
+            if int(item[0]) != int(cat_no):
+                filtered_items.append(item)
+        write_to_file(filtered_items)
+        break
+    create_items()
+def write_to_file(items):
+    with open("NewFile.txt","w")as NewFile:
+        for item in items:
+            NewFile.write(get_string(item)+"\n")
+                
+def get_string(item):
+    temp=""
+    for i in item:
+        if temp == "":
+            temp=i
+        else:
+            temp=temp+","+str(i)
+    
+    return temp       
+
 def logout():
     global session_id
     global user_type
@@ -118,8 +296,8 @@ def logout():
         
 def create_items():
     global newlist2
-    with open("MyFile.txt","r") as MyFile:
-        f=MyFile.readlines()
+    with open("NewFile.txt","r") as NewFile:
+        f=NewFile.readlines()
         newlist=[]
         for line in f:
             if line[-2]== '-':
@@ -132,7 +310,7 @@ def create_items():
 def show_all_items():        
         for item in newlist2:
             print(item[2],"Available Qty: ",item[5]," ", item[3]," ",item[4],"\n")
- 
+
 def add_item_cart():
     for item in newlist2:
             print(item[2],"Available Qty: ",item[5]," ", item[3]," ",item[4],"\n")
